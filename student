@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mock Student Panel</title>
+  <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f6ff;
+      color: #4b0082;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding-top: 50px;
+    }
+    .container {
+      width: 90%;
+      max-width: 500px;
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    h1, h2 {
+      margin: 10px 0;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 12px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #6a0dad;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.3s ease;
+      margin-top: 10px;
+    }
+    button:hover {
+      transform: scale(1.05);
+      background-color: #5a008d;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="createAccount" data-aos="fade-up">
+  <h2>Create Your Account</h2>
+  <input type="text" id="studentName" placeholder="Full Name">
+  <input type="text" id="studentPhone" placeholder="Phone Number (+998...)">
+  <button onclick="createStudent()">Create Account</button>
+</div>
+
+<div class="container hidden" id="mainScreen" data-aos="fade-up">
+  <h1>Welcome!</h1>
+  <button onclick="startVerification()">Choose Speaking Time</button>
+</div>
+
+<div class="container hidden" id="verifySection" data-aos="fade-up">
+  <h2>Phone Number Verification</h2>
+  <input type="text" id="verifyPhone" placeholder="Enter your phone number again">
+  <button onclick="verifyStudent()">Verify</button>
+</div>
+
+<div class="container hidden" id="chooseTime" data-aos="fade-up">
+  <h2>Select a Time Slot</h2>
+  <select id="timeSelect">
+    <option value="">-- Select a time --</option>
+  </select>
+  <button onclick="confirmTime()">Confirm Time</button>
+</div>
+
+<div class="container hidden" id="confirmation" data-aos="fade-up">
+  <h2>Confirm Your Time</h2>
+  <p id="chosenTimeDisplay"></p>
+  <button onclick="submitTime()">Submit</button>
+</div>
+
+<div class="container hidden" id="notRegistered" data-aos="fade-up">
+  <h2>Sorry</h2>
+  <p>You are not registered for this week’s mock test.</p>
+</div>
+
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+  AOS.init();
+
+  let selectedTime = "";
+  let userPhone = "";
+
+  function createStudent() {
+    const name = document.getElementById("studentName").value.trim();
+    const phone = document.getElementById("studentPhone").value.trim();
+    if (!name || !phone) {
+      alert("Please fill in all fields.");
+      return;
+    }
+    localStorage.setItem("studentName", name);
+    localStorage.setItem("studentPhone", phone);
+    document.getElementById("createAccount").classList.add("hidden");
+    document.getElementById("mainScreen").classList.remove("hidden");
+  }
+
+  function startVerification() {
+    document.getElementById("mainScreen").classList.add("hidden");
+    document.getElementById("verifySection").classList.remove("hidden");
+  }
+
+  function verifyStudent() {
+    const phone = document.getElementById("verifyPhone").value.trim();
+    const allowed = JSON.parse(localStorage.getItem("allowedPhones") || "[]");
+    const available = JSON.parse(localStorage.getItem("availableSlots") || "[]");
+
+    if (!allowed.includes(phone)) {
+      document.getElementById("verifySection").classList.add("hidden");
+      document.getElementById("notRegistered").classList.remove("hidden");
+      return;
+    }
+
+    userPhone = phone;
+
+    const select = document.getElementById("timeSelect");
+    select.innerHTML = '<option value="">-- Select a time --</option>';
+    available.forEach(time => {
+      const option = document.createElement("option");
+      option.value = time;
+      option.textContent = time;
+      select.appendChild(option);
+    });
+
+    document.getElementById("verifySection").classList.add("hidden");
+    document.getElementById("chooseTime").classList.remove("hidden");
+  }
+
+  function confirmTime() {
+    const selected = document.getElementById("timeSelect").value;
+    if (!selected) {
+      alert("Please select a time.");
+      return;
+    }
+    selectedTime = selected;
+    document.getElementById("chosenTimeDisplay").textContent = `You selected: ${selectedTime}`;
+    document.getElementById("chooseTime").classList.add("hidden");
+    document.getElementById("confirmation").classList.remove("hidden");
+  }
+
+  function submitTime() {
+    alert(`Time "${selectedTime}" booked successfully for ${userPhone}!`);
+    document.getElementById("confirmation").classList.add("hidden");
+    // In future: Save selection to server or show confirmation screen
+  }
+</script>
+
+</body>
+</html>
