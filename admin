@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mock Admin Panel</title>
+  <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f6ff;
+      color: #4b0082;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding-top: 50px;
+    }
+    .container {
+      width: 90%;
+      max-width: 500px;
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    h1, h2 {
+      margin: 10px 0;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 12px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #6a0dad;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.3s ease;
+      margin-top: 10px;
+    }
+    button:hover {
+      transform: scale(1.05);
+      background-color: #5a008d;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="loginForm" data-aos="fade-up">
+  <h2>Create Admin Account</h2>
+  <input type="text" id="adminName" placeholder="Your Name">
+  <input type="text" id="adminPhone" placeholder="Your Phone Number (+998...)">
+  <button onclick="verifyAdmin()">Login</button>
+</div>
+
+<div class="container hidden" id="welcomeScreen" data-aos="fade-up">
+  <h1>Welcome, Admin!</h1>
+  <button onclick="showAdminOptions()">Start</button>
+</div>
+
+<div class="container hidden" id="adminOptions" data-aos="fade-up">
+  <button onclick="showTimeForm()">Add Time Slots</button>
+  <button onclick="showPhoneForm()">Add Phone Numbers</button>
+</div>
+
+<div class="container hidden" id="timeForm" data-aos="fade-up">
+  <h2>Add Available Time Slots</h2>
+  <textarea id="times" placeholder="One time per line, e.g. Monday 10:00 a.m."></textarea>
+  <button onclick="saveTimes()">Save Times</button>
+</div>
+
+<div class="container hidden" id="phoneForm" data-aos="fade-up">
+  <h2>Add Phone Numbers</h2>
+  <textarea id="phones" placeholder="One phone number per line, e.g. +998901234567"></textarea>
+  <button onclick="savePhones()">Save Numbers</button>
+</div>
+
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+  AOS.init();
+
+  const allowedAdmins = ["+998777771968", "+998959637101", "+998910122461"];
+
+  function verifyAdmin() {
+    const name = document.getElementById("adminName").value.trim();
+    const phone = document.getElementById("adminPhone").value.trim();
+    if (!name || !phone) {
+      alert("Please enter both name and phone number.");
+      return;
+    }
+    if (allowedAdmins.includes(phone)) {
+      document.getElementById("loginForm").classList.add("hidden");
+      document.getElementById("welcomeScreen").classList.remove("hidden");
+    } else {
+      alert("This number is not authorized as an admin.");
+    }
+  }
+
+  function showAdminOptions() {
+    document.getElementById("welcomeScreen").classList.add("hidden");
+    document.getElementById("adminOptions").classList.remove("hidden");
+  }
+
+  function showTimeForm() {
+    hideAll();
+    document.getElementById("timeForm").classList.remove("hidden");
+  }
+
+  function showPhoneForm() {
+    hideAll();
+    document.getElementById("phoneForm").classList.remove("hidden");
+  }
+
+  function hideAll() {
+    document.getElementById("timeForm").classList.add("hidden");
+    document.getElementById("phoneForm").classList.add("hidden");
+  }
+
+  function saveTimes() {
+    const times = document.getElementById("times").value.trim().split("\n").filter(Boolean);
+    localStorage.setItem("availableSlots", JSON.stringify(times));
+    alert("Time slots saved!");
+  }
+
+  function savePhones() {
+    const phones = document.getElementById("phones").value.trim().split("\n").filter(Boolean);
+    localStorage.setItem("allowedPhones", JSON.stringify(phones));
+    alert("Phone numbers saved!");
+  }
+</script>
+</body>
+</html>
